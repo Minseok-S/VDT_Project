@@ -1,50 +1,44 @@
-let postureScores = [
+let scores = [
   {
-    score_id: "1",
-    user_id: "bbb9316",
-    createdAt: Date.now().toString(),
-    score: "66",
-    time: "2937",
+    userID: "1",
+    date: Date.now().toString(),
+    score: "58",
+    time: "12342",
   },
   {
-    score_id: "1",
-    user_id: "bbb9316",
-    createdAt: Date.now().toString(),
-    score: "66",
-    time: "2937",
+    userID: "2",
+    date: Date.now().toString(),
+    score: "78",
+    time: "52535",
   },
   {
-    score_id: "1",
-    user_id: "bbb9316",
-    createdAt: Date.now().toString(),
-    score: "66",
-    time: "2937",
-  },
-  {
-    score_id: "1",
-    user_id: "bbb9316",
-    createdAt: Date.now().toString(),
-    score: "66",
-    time: "2937",
+    userID: "1",
+    date: Date.now().toString(),
+    score: "23",
+    time: "12412",
   },
 ];
 
-export async function getAllByUsername(id) {
-  return postureScores.filter((Score) => Score.user_id === id);
+export async function getAllByUserId(id) {
+  return scores.filter((score) => score.userID === id);
 }
 
-export async function getById(id) {
-  return postureScores.find((postureScore) => postureScore.user_id === id);
-}
-
-export async function create(text, name, username) {
-  const postureScore = {
-    id: Date.now().toString(),
-    text,
-    createdAt: new Date(),
-    name,
-    username,
+export async function create(userID, score, time) {
+  const scoreData = {
+    userID,
+    date: new Date(),
+    score,
+    time,
   };
-  postureScores = [postureScore, ...postureScores];
-  return postureScore;
+  scores = [scoreData, ...scores];
+  return scoreData;
+}
+
+// 사용할지 안할지 미지수
+export async function update(id, text) {
+  const score = scores.find((score) => score.userID === id);
+  if (score) {
+    score.text = text;
+  }
+  return score;
 }
