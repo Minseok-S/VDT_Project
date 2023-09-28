@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Schema</h1>
+    <ol>
+      <li>
+        <p><strong>사용자(User) 테이블</strong>:</p>
+        <ul>
+          <li>테이블 이름: <code>users</code></li>
+          <li>
+            열:
+            <ul>
+              <li><code>UserID</code> (INT): 고유한 사용자 식별자 (기본키)</li>
+              <li><code>UserName</code> (VARCHAR): 사용자 이름</li>
+              <li><code>Email</code> (VARCHAR): 이메일 주소</li>
+              <li><code>PasswordHash</code> (VARCHAR): 비밀번호 해시</li>
+              <li><code>CreatedAt</code> (TIMESTAMP): 계정 생성 일시</li>
+              <li>
+                <code>UpdatedAt</code> (TIMESTAMP): 계정 정보 업데이트 일시
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>자세 점수표(PostureScore) 테이블</strong>:</p>
+        <ul>
+          <li>테이블 이름: <code>posture_scores</code></li>
+          <li>
+            열:
+            <ul>
+              <li><code>ScoreID</code> (INT): 고유한 점수표 식별자 (기본키)</li>
+              <li><code>UserID</code> (INT): 사용자 식별자 (외래 키)</li>
+              <li><code>Date</code> (DATE): 자세 기록 날짜</li>
+              <li><code>Score</code> (INT): 자세 점수</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>통계 데이터(Statistics) 테이블</strong>:</p>
+        <ul>
+          <li>테이블 이름: <code>statistics</code></li>
+          <li>
+            열:
+            <ul>
+              <li>
+                <code>StatID</code> (INT): 고유한 통계 데이터 식별자 (기본키)
+              </li>
+              <li><code>UserID</code> (INT): 사용자 식별자 (외래 키)</li>
+              <li><code>StatDate</code> (DATE): 통계 데이터 날짜</li>
+              <li>
+                <code>AverageScore</code> (DECIMAL): 해당 날짜의 평균 자세 점수
+              </li>
+              <li><code>MaxScore</code> (INT): 해당 날짜의 최고 자세 점수</li>
+              <li><code>MinScore</code> (INT): 해당 날짜의 최저 자세 점수</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ol>
+    <hr />
+    <h1>API</h1>
+    <ol>
+      <li>
+        <p><strong>사용자 등록 (User Registration)</strong></p>
+        <ul>
+          <li>
+            <strong>엔드포인트</strong>: <code>POST /api/users/register</code>
+          </li>
+          <li>
+            <strong>요청 본문 (Request Body)</strong>:
+            <pre><code class="language-json">{
+  &quot;userName&quot;: &quot;john_doe&quot;,
+  &quot;email&quot;: &quot;john@example.com&quot;,
+  &quot;password&quot;: &quot;secure_password&quot;
+}
+</code></pre>
+          </li>
+          <li>
+            <strong>응답 (Response)</strong>:
+            <pre><code class="language-json">{
+  &quot;message&quot;: &quot;User registered successfully&quot;
+}
+</code></pre>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>로그인 (User Login)</strong></p>
+        <ul>
+          <li>
+            <strong>엔드포인트</strong>: <code>POST /api/users/login</code>
+          </li>
+          <li>
+            <strong>요청 본문 (Request Body)</strong>:
+            <pre><code class="language-json">{
+  &quot;email&quot;: &quot;john@example.com&quot;,
+  &quot;password&quot;: &quot;secure_password&quot;
+}
+</code></pre>
+          </li>
+          <li>
+            <strong>응답 (Response)</strong>:
+            <pre><code class="language-json">{
+  &quot;message&quot;: &quot;Login successful&quot;,
+  &quot;accessToken&quot;: &quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNjEwMjM5MDIyfQ.XXXXXX&quot;
+}
+</code></pre>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>매일 자세 점수 저장 (Save Daily Posture Score)</strong></p>
+        <ul>
+          <li><strong>엔드포인트</strong>: <code>POST /api/scores</code></li>
+          <li>
+            <strong>요청 본문 (Request Body)</strong>:
+            <pre><code class="language-json">{
+  &quot;userID&quot;: 123,
+  &quot;date&quot;: &quot;2023-09-20&quot;,
+  &quot;score&quot;: 95
+}
+</code></pre>
+          </li>
+          <li>
+            <strong>응답 (Response)</strong>:
+            <pre><code class="language-json">{
+  &quot;message&quot;: &quot;Posture score saved successfully&quot;,
+  &quot;scoreID&quot;: 456
+}
+</code></pre>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p>
+          <strong
+            >특정 사용자의 자세 점수 조회 (Get User's Daily Posture
+            Scores)</strong
+          >
+        </p>
+        <ul>
+          <li>
+            <strong>엔드포인트</strong>:
+            <code>GET /api/scores/user/{userID}</code>
+          </li>
+          <li>
+            <strong>요청 매개변수 (Query Parameter)</strong>:
+            <ul>
+              <li>
+                날짜 범위 (옵션): <code>startDate</code>와
+                <code>endDate</code>로 날짜 범위 지정 가능
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>응답 (Response)</strong>:
+            <pre><code class="language-json">{
+  &quot;scores&quot;: [
+    {
+      &quot;scoreID&quot;: 1,
+      &quot;date&quot;: &quot;2023-09-18&quot;,
+      &quot;score&quot;: 92
+    },
+    {
+      &quot;scoreID&quot;: 2,
+      &quot;date&quot;: &quot;2023-09-19&quot;,
+      &quot;score&quot;: 88
+    },
+    {
+      &quot;scoreID&quot;: 3,
+      &quot;date&quot;: &quot;2023-09-20&quot;,
+      &quot;score&quot;: 95
+    }
+  ]
+}
+</code></pre>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p>
+          <strong
+            >통계 데이터 생성 및 조회 (Generate and Get Statistics Data)</strong
+          >
+        </p>
+        <ul>
+          <li>
+            <strong>엔드포인트</strong>:
+            <code>GET /api/statistics/user/{userID}</code>
+          </li>
+          <li>
+            <strong>요청 매개변수 (Query Parameter)</strong>:
+            <ul>
+              <li>
+                통계 유형 (옵션): <code>type=daily</code> (일간 통계),
+                <code>type=weekly</code> (주간 통계),
+                <code>type=monthly</code> (월간 통계) 등 통계 유형 선택 가능
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>응답 (Response)</strong>:
+            <pre><code class="language-json">{
+  &quot;statistics&quot;: [
+    {
+      &quot;statID&quot;: 101,
+      &quot;statDate&quot;: &quot;2023-09-18&quot;,
+      &quot;averageScore&quot;: 90.5,
+      &quot;maxScore&quot;: 92,
+      &quot;minScore&quot;: 89
+    },
+    {
+      &quot;statID&quot;: 102,
+      &quot;statDate&quot;: &quot;2023-09-19&quot;,
+      &quot;averageScore&quot;: 88.2,
+      &quot;maxScore&quot;: 90,
+      &quot;minScore&quot;: 86
+    },
+    {
+      &quot;statID&quot;: 103,
+      &quot;statDate&quot;: &quot;2023-09-20&quot;,
+      &quot;averageScore&quot;: 91.1,
+      &quot;maxScore&quot;: 95,
+      &quot;minScore&quot;: 89
+    }
+  ]
+}
+</code></pre>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>로그아웃 (User Logout)</strong></p>
+        <ul>
+          <li>
+            <strong>엔드포인트</strong>: <code>POST /api/users/logout</code>
+          </li>
+          <li>
+            <strong>요청 헤더 (Request Header)</strong>:
+            <code>Authorization: Bearer &lt;access_token&gt;</code>
+          </li>
+          <li>
+            <strong>응답 (Response)</strong>:
+            <pre><code class="language-json">{
+  &quot;message&quot;: &quot;Logout successful&quot;
+}
+</code></pre>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p><strong>비밀번호 재설정 (Reset Password)</strong></p>
+        <ul>
+          <li>
+            <strong>엔드포인트</strong>:
+            <code>POST /api/users/reset-password</code>
+          </li>
+          <li>
+            <strong>요청 본문 (Request Body)</strong>:
+            <pre><code class="language-json">{
+  &quot;email&quot;: &quot;john@example.com&quot;
+}
+</code></pre>
+          </li>
+          <li>
+            <strong>응답 (Response)</strong>:
+            <pre><code class="language-json">{
+  &quot;message&quot;: &quot;Password reset link sent successfully&quot;
+}
+</code></pre>
+          </li>
+        </ul>
+      </li>
+    </ol>
+  </body>
+</html>
