@@ -1,3 +1,5 @@
+import * as userRepository from "./user.js";
+
 let scores = [
   {
     userID: "1",
@@ -19,8 +21,32 @@ let scores = [
   },
 ];
 
-export async function getAllByUserId(id) {
-  return scores.filter((score) => score.userID === id);
+export async function getAll() {
+  return Promise.all(
+    scores.map(async (score) => {
+      const { username, email, createAt } = await userRepository.findById(
+        score.userID
+      );
+      return { ...score, username, email, createAt };
+    })
+  );
+}
+
+export async function getById(id) {
+  const found = scores.find((score) => score.userID === id);
+  if (!found) {
+    return null;
+  }
+  const { username, email, createAt } = await userRepository.findById(
+    found.userID
+  );
+  return { ...found, username, email, createAt };
+}
+
+export async function getAllByUserId(userID) {
+  return getAll().then((scores) =>
+    scores.filter((score) => score.userID === userID)
+  );
 }
 
 export async function create(userID, score, time) {
@@ -31,14 +57,13 @@ export async function create(userID, score, time) {
     time,
   };
   scores = [scoreData, ...scores];
-  return scoreData;
+  return getById(scoreData.userID);
 }
 
-// 사용할지 안할지 미지수
 export async function update(id, text) {
   const score = scores.find((score) => score.userID === id);
   if (score) {
     score.text = text;
   }
-  return score;
+  return getById(score.userID);
 }
