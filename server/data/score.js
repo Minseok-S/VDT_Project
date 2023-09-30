@@ -2,32 +2,36 @@ import * as userRepository from "./user.js";
 
 let scores = [
   {
-    userID: "1",
-    date: Date.now().toString(),
+    userID: "bbb9316",
+    date: new Date().toString(),
     score: "58",
     time: "12342",
   },
   {
-    userID: "2",
-    date: Date.now().toString(),
-    score: "78",
-    time: "52535",
+    userID: "aaaa9316",
+    date: new Date().toString(),
+    score: "58",
+    time: "12342",
   },
   {
-    userID: "1",
-    date: Date.now().toString(),
-    score: "23",
-    time: "12412",
+    userID: "aaaa9316",
+    date: new Date().toString(),
+    score: "58",
+    time: "12342",
+  },
+  {
+    userID: "aaaa9316",
+    date: new Date().toString(),
+    score: "58",
+    time: "12342",
   },
 ];
 
 export async function getAll() {
   return Promise.all(
     scores.map(async (score) => {
-      const { username, email, createAt } = await userRepository.findById(
-        score.userID
-      );
-      return { ...score, username, email, createAt };
+      await userRepository.findById(score.userID);
+      return { ...score };
     })
   );
 }
@@ -37,10 +41,8 @@ export async function getById(id) {
   if (!found) {
     return null;
   }
-  const { username, email, createAt } = await userRepository.findById(
-    found.userID
-  );
-  return { ...found, username, email, createAt };
+
+  return { ...found };
 }
 
 export async function getAllByUserId(userID) {
