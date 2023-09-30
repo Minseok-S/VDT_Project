@@ -5,6 +5,7 @@ import morgan from "morgan";
 import helmet from "helmet";
 import scoreRouter from "./router/score.js";
 import userRouter from "./router/user.js";
+import { config } from "./config.js";
 
 const app = express();
 
@@ -24,4 +25,4 @@ app.use((error, req, res, next) => {
   console.error(error);
   res.sendStatus(500);
 });
-app.listen(8080);
+app.listen(config.host.port);
