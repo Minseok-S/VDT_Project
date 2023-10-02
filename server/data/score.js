@@ -1,71 +1,45 @@
-import * as userRepository from "./user.js";
+import { db } from "../db/database.js";
 
-let scores = [
-  {
-    userID: "bbb9316",
-    date: new Date().toString(),
-    score: "58",
-    time: "12342",
-  },
-  {
-    userID: "aaaa9316",
-    date: new Date().toString(),
-    score: "58",
-    time: "12342",
-  },
-  {
-    userID: "aaaa9316",
-    date: new Date().toString(),
-    score: "58",
-    time: "12342",
-  },
-  {
-    userID: "aaaa9316",
-    date: new Date().toString(),
-    score: "58",
-    time: "12342",
-  },
-];
+const SELECT_JOIN =
+  "SELECT users.userID, scores.userID, scores.date, scores.score, scores.time FROM scores JOIN users ON scores.userID=user.userID";
+
+const ORDER_DESC = "ORDER BY scores.date DESC";
 
 export async function getAll() {
-  return Promise.all(
-    scores.map(async (score) => {
-      await userRepository.findById(score.userID);
-      return { ...score };
-    })
-  );
+  return db
+    .execute(`${SELECT_JOIN} ${ORDER_DESC}`) //
+    .then((result) => result[0]);
 }
 
 export async function getById(id) {
-  const found = scores.find((score) => score.userID === id);
-  if (!found) {
-    return null;
-  }
-
-  return { ...found };
+  return db
+    .execute(`${SELECT_JOIN} WHERE scores.userID=?`[id]) //
+    .then((result) => result[0][0]);
 }
 
 export async function getAllByUserId(userID) {
-  return getAll().then((scores) =>
-    scores.filter((score) => score.userID === userID)
-  );
+  return db
+    .execute(`${SELECT_JOIN} WHERE userID=? ${ORDER_DESC}`, [userID]) //
+    .then((result) => result[0]);
 }
 
 export async function create(userID, score, time) {
-  const scoreData = {
-    userID,
-    date: new Date(),
-    score,
-    time,
-  };
-  scores = [scoreData, ...scores];
-  return getById(scoreData.userID);
+  return db
+    .execute(`INSERT INTO scores (userID, date, score, time) VALUES(?,?,?,?)`, [
+      userID,
+      new Date(),
+      score,
+      time,
+    ])
+    .then((result) => getById(result[0].insertId)); //
 }
 
-export async function update(id, text) {
-  const score = scores.find((score) => score.userID === id);
-  if (score) {
-    score.text = text;
-  }
-  return getById(score.userID);
+export async function update(score, time, userID) {
+  return db
+    .execute(
+      "UPDATE scores SET (score, time) VALUES(?, ?) WHERE (userID, date) VALUES(?, ?)",
+      [score, time],
+      [userID, new Date()]
+    )
+    .then(() => getById(userID));
 }

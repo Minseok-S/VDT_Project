@@ -1,23 +1,17 @@
-let users = [
-  {
-    userID: "bbb9316",
-    username: "민석",
-    password: "$2b$12$G9xf8SFq3oTEgdj7ozHQ/uhDOyeQcUEDU8tnOcvpvApuadr3nE5Vm",
-    email: "bob@gmail.com",
-    createAt: "2023-07-12",
-  },
-];
-
-export async function findByUsername(username) {
-  return users.find((user) => user.username === username);
-}
+import { db } from "../db/database.js";
 
 export async function findById(id) {
-  return users.find((user) => user.userID === id);
+  return db
+    .execute("SELECT * FROM users WHERE userID=?", [id])
+    .then((result) => result[0][0]);
 }
 
 export async function createUser(user) {
-  const created = { ...user, createAt: Date.now().toString() };
-  users.push(created);
-  return created.userID;
+  const { userID, username, password, email, createAt } = user;
+  return db
+    .execute(
+      "INSERT INTO users (userID, username, password, email, createAt) VALUES (?, ?, ?, ?, ?)",
+      [userID, username, password, email, createAt]
+    )
+    .then((result) => result[0].insertId);
 }

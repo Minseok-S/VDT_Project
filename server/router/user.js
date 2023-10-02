@@ -8,17 +8,17 @@ import { isAuth } from "../middleware/user.js";
 const router = express.Router();
 
 const validateCredential = [
-  body("userID")
-    .trim()
-    .notEmpty()
-    .withMessage("username should be at least 5 characters"),
+  body("userID").trim().notEmpty(),
   body("password")
     .trim()
-    .isLength({ min: 5 })
-    // .matches(
-    //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
-    // )
-    .withMessage("password should be at least 8 characters"),
+    .isLength({ min: 8 })
+    .withMessage("password should be at least 8 characters")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
+    )
+    .withMessage(
+      "Please use uppercase and lowercase letters and special characters."
+    ),
   validate,
 ];
 
