@@ -1,7 +1,7 @@
 import { db } from "../db/database.js";
 
 const SELECT_JOIN =
-  "SELECT users.userID, scores.userID, scores.date, scores.score, scores.time FROM scores JOIN users ON scores.userID=user.userID";
+  "SELECT users.userID, scores.userID, scores.date, scores.score, scores.time FROM scores JOIN users ON scores.userID=users.userID";
 
 const ORDER_DESC = "ORDER BY scores.date DESC";
 
@@ -19,7 +19,7 @@ export async function getById(id) {
 
 export async function getAllByUserId(userID) {
   return db
-    .execute(`${SELECT_JOIN} WHERE userID=? ${ORDER_DESC}`, [userID]) //
+    .execute(`${SELECT_JOIN} WHERE scores.userID=? ${ORDER_DESC}`, [userID]) //
     .then((result) => result[0]);
 }
 
