@@ -1,99 +1,141 @@
+## API 설계서
 
-1. **사용자(User) 테이블**:
-   - 테이블 이름: `users`
-   - 열:
-     - `user_id` (VARCHAR): 고유한 사용자 식별자 (기본키)
-     - `user_name` (VARCHAR): 사용자 이름
-     - `user_email` (VARCHAR): 이메일 주소
-     - `user_pw` (VARCHAR): 비밀번호(암호화)
-     - `user_nickname` (VARCHAR): 닉네임
-     - `CreatedAt` (TIMESTAMP): 계정 생성 일시
+### 1. 사용자 관리 및 인증
 
-2. **자세 점수표(PostureScore) 테이블**:
-   - 테이블 이름: `posture_scores`
-   - 열:
-     - `score_id` (VARCHAR): 고유한 점수표 식별자 (기본키)
-     - `user_id` (VARCHAR): 사용자 식별자 (외래 키)
-     - `Date` (DATE): 자세 기록 날짜
-     - `Score` (INT): 자세 점수
-     - `time` (INT): 측정 시간
+#### 1.1 회원 가입
 
-
----
-**1. 사용자 회원가입 API**
-- 엔드포인트: POST /api/users/register
-- 요청 형식:
-```json
-{
-  "user_name": "John Doe",
-  "user_email": "johndoe@example.com",
-  "user_pw": "hashed_password",
-  "user_nickname": "johndoe123"
-}
-```
-- 응답 형식:
-```json
-{
-  "message": "회원가입이 성공적으로 완료되었습니다."
-}
-```
-
-**2. 사용자 로그인 API**
-- 엔드포인트: POST /api/users/login
-- 요청 형식:
-```json
-{
-  "user_email": "johndoe@example.com",
-  "user_pw": "hashed_password"
-}
-```
-- 응답 형식:
-```json
-{
-  "user_id": "user_id_here",
-  "user_name": "John Doe",
-  "user_nickname": "johndoe123",
-  "access_token": "JWT_access_token_here"
-}
-```
-
-**3. 자세 측정 API**
-- 엔드포인트: POST /api/posture-scores
-- 요청 형식:
-```json
-{
-  "user_id": "user_id_here",
-  "Date": "2023-09-25",
-  "Score": 85,
-  "time": 15
-}
-```
-- 응답 형식:
-```json
-{
-  "message": "자세 측정 데이터가 성공적으로 저장되었습니다."
-}
-```
-
-**4. 자세 점수 조회 API**
-- 엔드포인트: GET /api/posture-scores/:user_id
-- 요청 형식: 사용자 ID를 엔드포인트에 포함시켜 해당 사용자의 자세 점수를 조회합니다.
-- 응답 형식:
-```json
-{
-  "user_id": "user_id_here",
-  "user_name": "John Doe",
-  "posture_scores": [
+- **요청**: `POST /user/signup`
+- **요청 본문**:
+  ```json
+  {
+    "userID": "사용자 고유 ID",
+    "username": "사용자 이름",
+    "password": "비밀번호",
+    "email": "이메일 주소",
+    "createAt": "계정 생성 일시"
+  }
+  ```
+- **응답**:
+  - 성공 시: 201 Created
+    ```json
     {
-      "Date": "2023-09-25",
-      "Score": 85
-    },
+      "token": "JWT_토큰",
+      "userID": "사용자 고유 ID"
+    }
+    ```
+  - 이미 존재하는 사용자인 경우: 409 Conflict
+    ```json
     {
-      "Date": "2023-09-24",
-      "Score": 90
-    },
-    ...
-  ]
-}
-```
+      "message": "사용자 ID가 이미 존재합니다."
+    }
+    ```
 
+#### 1.2 로그인
+
+- **요청**: `POST /user/login`
+- **요청 본문**:
+  ```json
+  {
+    "userID": "사용자 고유 ID",
+    "password": "비밀번호"
+  }
+  ```
+- **응답**:
+  - 성공 시: 200 OK
+    ```json
+    {
+      "token": "JWT_토큰",
+      "userID": "사용자 고유 ID"
+    }
+    ```
+  - 사용자가 존재하지 않거나 비밀번호가 일치하지 않는 경우: 401 Unauthorized
+    ```json
+    {
+      "message": "인증에 실패했습니다. 사용자 ID 또는 비밀번호를 확인하세요."
+    }
+    ```
+
+#### 1.3 현재 사용자 프로필 조회
+
+- **요청**: `GET /user/me`
+- **요청 헤더**: Authorization 헤더에 JWT 토큰을 포함
+- **응답**:
+  - 성공 시: 200 OK
+    ```json
+    {
+      "token": "JWT_토큰",
+      "username": "사용자 이름"
+    }
+    ```
+  - 인증되지 않은 요청인 경우: 401 Unauthorized
+    ```json
+    {
+      "message": "인증되지 않았습니다. 로그인 후 다시 시도하세요."
+    }
+    ```
+  - 사용자를 찾을 수 없는 경우: 404 Not Found
+    ```json
+    {
+      "message": "사용자를 찾을 수 없습니다."
+    }
+    ```
+
+### 2. 점수 관리
+
+#### 2.1 특정 사용자의 점수 조회
+
+- **요청**: `GET /score/:id`
+- **요청 파라미터**: id (사용자 ID)
+- **요청 헤더**: Authorization 헤더에 JWT 토큰을 포함
+- **응답**:
+  - 성공 시: 200 OK
+    ```json
+    {
+      "scores": [
+        {
+          "Date": "날짜",
+          "Score": "점수",
+          "time": "측정 시간"
+        }
+        // 다른 점수 데이터
+      ]
+    }
+    ```
+  - 인증되지 않은 요청인 경우: 401 Unauthorized
+    ```json
+    {
+      "message": "인증되지 않았습니다. 로그인 후 다시 시도하세요."
+    }
+    ```
+  - 사용자를 찾을 수 없는 경우: 404 Not Found
+    ```json
+    {
+      "message": "사용자를 찾을 수 없습니다."
+    }
+    ```
+
+#### 2.2 새로운 점수 생성
+
+- **요청**: `POST /score`
+- **요청 본문**:
+  ```json
+  {
+    "userID": "사용자 고유 ID",
+    "score": "점수",
+    "time": "측정 시간"
+  }
+  ```
+- **요청 헤더**: Authorization 헤더에 JWT 토큰을 포함
+- **응답**:
+  - 성공 시: 201 Created
+    ```json
+    {
+      "message": "점수 데이터가 성공적으로 저장되었습니다."
+    }
+    ```
+  - 인증되지 않은 요청인 경우: 401 Unauthorized
+    ```json
+    {
+      "message": "인증되지 않았습니다. 로그인 후 다시 시도하세요."
+    }
+    ```
